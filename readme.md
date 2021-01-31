@@ -188,6 +188,9 @@ If you discover any security related issues, please email author email instead o
 -   [Tal Elmishali][link-author]
 -   [All Contributors][link-contributors]
 
+## Acknowledgements
+Laravel-Inventory draws inspiration from spatie/laravel-model-status & appstract/laravel-stock (even though it doesn't rely on any of them).
+
 ## License
 
 license. Please see the [license file](license.md) for more information.
