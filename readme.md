@@ -83,9 +83,9 @@ Product::InventoryIs(10)->get(); // Return all products with inventory of 10
 
 Product::InventoryIs(10, '>=')->get(); // Return all products with inventory of 10 or greater
 
-Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or greater
+Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or less
 
-Product::InventoryIs(10, '>=', [1,2,3])->get(); // Return all products with inventory of 10 or greater where product id is 1,2,3
+Product::InventoryIs(10, '>=', [1,2,3])->get(); // Return all products with inventory of 10 or greater where product id is [1,2,3]
 
 Proudct::InventoryIsNot(10)->get(); // Return all products where inventory is not 10
 
@@ -150,7 +150,7 @@ $product->clearInventory(10); // Will clear all inventory for the model and will
 ```php
 Product::InventoryIs(10)->get(); // Return all products with inventory of 10
 
-Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or greater
+Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or less
 
 Product::InventoryIs(10, '>=', [1,2,3])->get(); // Return all products with inventory of 10 or greater where product id is 1,2,3
 ```
