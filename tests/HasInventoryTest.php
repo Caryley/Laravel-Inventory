@@ -2,8 +2,6 @@
 
 namespace Caryley\LaravelInventory\Tests;
 
-use Caryley\LaravelInventory\Tests\TestCase;
-
 class hasInventoryTest extends TestCase
 {
     /** @test */

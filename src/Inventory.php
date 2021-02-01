@@ -3,7 +3,6 @@
 namespace Caryley\LaravelInventory;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Inventory extends Model
 {

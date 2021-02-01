@@ -4,7 +4,6 @@ namespace Caryley\LaravelInventory\Tests;
 
 use Caryley\LaravelInventory\Inventory;
 use Caryley\LaravelInventory\LaravelInventoryServiceProvider;
-use Caryley\LaravelInventory\Tests\InventoryModel;
 use Illuminate\Database\Schema\Blueprint;
 use Orchestra\Testbench\TestCase as BaseTest;
 

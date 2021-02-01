@@ -5,7 +5,6 @@ namespace Caryley\LaravelInventory;
 use Caryley\LaravelInventory\Events\InventoryUpdate;
 use Caryley\LaravelInventory\Exeptions\InvalidInventory;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
