@@ -3,6 +3,7 @@
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 [![Build Status][ico-travis]][link-travis]
+[![StyleCI][ico-styleci]][link-styleci]
 
 The Laravel Inventory package helps track an inventory on any model with laravel. <br/>
 The package offers the following function:
@@ -198,9 +199,10 @@ license. Please see the [license file](license.md) for more information.
 [ico-version]: https://img.shields.io/packagist/v/caryley/laravel-inventory.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/caryley/laravel-inventory.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/caryley/laravel-inventory/master.svg?style=flat-square
-[ico-styleci]: https://styleci.io/repos/12345678/shield
+[ico-styleci]: https://github.styleci.io/repos/334772924/shield?branch=master
 [link-packagist]: https://packagist.org/packages/caryley/laravel-inventory
 [link-downloads]: https://packagist.org/packages/caryley/laravel-inventory
 [link-travis]: https://travis-ci.org/caryley/laravel-inventory
+[link-styleci]: https://github.styleci.io/repos/334772924?branch=master
 [link-author]: https://github.com/talelmishali
 [link-contributors]: ../../contributors
