@@ -2,7 +2,6 @@
 ![GitHub Workflow Status][link-tests]
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
-[![Build Status][ico-travis]][link-travis]
 [![StyleCI][ico-styleci]][link-styleci]
 
 The Laravel Inventory package helps track an inventory on any model with laravel. <br/>
@@ -198,12 +197,10 @@ license. Please see the [license file](license.md) for more information.
 
 [ico-version]: https://img.shields.io/packagist/v/caryley/laravel-inventory.svg?style=flat-square
 [ico-downloads]: https://img.shields.io/packagist/dt/caryley/laravel-inventory.svg?style=flat-square
-[ico-travis]: https://img.shields.io/travis/caryley/laravel-inventory/master.svg?style=flat-square
 [ico-styleci]: https://github.styleci.io/repos/334772924/shield?branch=master
 [link-packagist]: https://packagist.org/packages/caryley/laravel-inventory
 [link-downloads]: https://packagist.org/packages/caryley/laravel-inventory
-[link-travis]: https://travis-ci.org/caryley/laravel-inventory
-[link-tests]: https://img.shields.io/github/workflow/status/Caryley/Laravel-Inventory/Larave-Inventory%20Test?label=tests
+[link-tests]: https://github.com/Caryley/Laravel-Inventory/workflows/Larave-Inventory%20Test/badge.svg
 [link-styleci]: https://github.styleci.io/repos/334772924?branch=master
 [link-author]: https://github.com/talelmishali
 [link-contributors]: ../../contributors
