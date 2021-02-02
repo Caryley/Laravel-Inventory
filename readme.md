@@ -1,5 +1,5 @@
 # Laravel Inventory
-
+![GitHub Workflow Status][link-tests]
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
 [![Build Status][ico-travis]][link-travis]
@@ -203,6 +203,7 @@ license. Please see the [license file](license.md) for more information.
 [link-packagist]: https://packagist.org/packages/caryley/laravel-inventory
 [link-downloads]: https://packagist.org/packages/caryley/laravel-inventory
 [link-travis]: https://travis-ci.org/caryley/laravel-inventory
+[link-tests]: https://img.shields.io/github/workflow/status/Caryley/Laravel-Inventory/Larave-Inventory%20Test?label=tests
 [link-styleci]: https://github.styleci.io/repos/334772924?branch=master
 [link-author]: https://github.com/talelmishali
 [link-contributors]: ../../contributors
