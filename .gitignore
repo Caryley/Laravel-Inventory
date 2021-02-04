@@ -1,4 +1,8 @@
 /vendor/
+/app
+/routes
+routes
+app
 
 .phpunit.result.cache
 composer.lock

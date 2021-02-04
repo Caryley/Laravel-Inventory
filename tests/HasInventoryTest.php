@@ -2,7 +2,7 @@
 
 namespace Caryley\LaravelInventory\Tests;
 
-class hasInventoryTest extends TestCase
+class HasInventoryTest extends TestCase
 {
     /** @test */
     public function return_true_when_inventory_is_missing()
@@ -57,6 +57,18 @@ class hasInventoryTest extends TestCase
 
         $this->inventoryModel->refresh();
         $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
+    }
+
+    /** @test */
+    public function add_to_a_non_existing_inventory()
+    {
+        $this->inventoryModel->clearInventory();
+        $this->assertNull($this->inventoryModel->inventory());
+
+        $this->inventoryModel->addInventory(5);
+        $this->inventoryModel->refresh();
+
+        $this->assertEquals(5, $this->inventoryModel->inventories->first()->quantity);
     }
 
     /** @test */
