@@ -200,7 +200,7 @@ license. Please see the [license file](license.md) for more information.
 [ico-styleci]: https://github.styleci.io/repos/334772924/shield?branch=master
 [link-packagist]: https://packagist.org/packages/caryley/laravel-inventory
 [link-downloads]: https://packagist.org/packages/caryley/laravel-inventory
-[link-tests]: https://github.com/Caryley/Laravel-Inventory/workflows/Larave-Inventory%20Test/badge.svg
+[link-tests]: https://github.com/Caryley/Laravel-Inventory/workflows/Laravel-Inventory%20Test/badge.svg
 [link-styleci]: https://github.styleci.io/repos/334772924?branch=master
 [link-author]: https://github.com/talelmishali
 [link-contributors]: ../../contributors
