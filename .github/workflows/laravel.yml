@@ -1,4 +1,4 @@
-name: Larave-Inventory Test
+name: Laravel-Inventory Test
 
 on:
   push:
