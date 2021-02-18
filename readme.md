@@ -71,7 +71,7 @@ $product->addInventory(5); // $product->currentInventory()->quantity; (Will resu
 
 $product->subtractInventory(5); // $product->currentInventory()->quantity; (Will result in 10)
 
-$product->inInventory(); // Retrun true
+$product->inInventory(); // Return true
 
 $product->clearInventory(); // $product->currentInventory(); (return null)
 
