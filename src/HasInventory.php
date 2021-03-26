@@ -33,6 +33,18 @@ trait HasInventory
     }
 
     /**
+     * Return the current inventory on the model.
+     *
+     * @return \Caryley\LaravelInventory\Inventory
+     */
+    public function currentInventory()
+    {
+        $inventories = $this->relationLoaded('inventories') ? $this->inventories : $this->inventories();
+
+        return $inventories->first();
+    }
+
+    /**
      * Determine if a given quantity is in inventory on the model.
      *
      * @param  string $quantity
@@ -50,6 +62,10 @@ trait HasInventory
      */
     public function notInInventory()
     {
+        if (! isset($this->inventories->first()->quantity)) {
+            return true;
+        }
+
         return $this->inventories->first()->quantity <= 0;
     }
 
@@ -62,7 +78,7 @@ trait HasInventory
      */
     public function setInventory(int $quantity, ?string $description = null)
     {
-        if (! $this->isValidQuantity($quantity, $description)) {
+        if (! $this->isValidInventory($quantity, $description)) {
             throw InvalidInventory::value($quantity);
         }
 
@@ -78,11 +94,11 @@ trait HasInventory
      */
     public function addInventory(int $addQuantity = 1, ?string $description = null)
     {
-        if (! $this->isValidQuantity($addQuantity, $description)) {
+        if (! $this->isValidInventory($addQuantity, $description)) {
             throw InvalidInventory::value($quantity);
         }
 
-        if (! isset($this->inventories->first()->quantity)) {
+        if ($this->notInInventory()) {
             return $this->createInventory($addQuantity, $description);
         }
 
@@ -102,7 +118,7 @@ trait HasInventory
     {
         $subtractQuantity = abs($subtractQuantity);
 
-        if (! $this->isValidQuantity($subtractQuantity, $description)) {
+        if (! $this->isValidInventory($subtractQuantity, $description)) {
             throw InvalidInventory::value($quantity);
         }
 
@@ -117,22 +133,6 @@ trait HasInventory
         }
 
         return $this->createInventory($newQuantity, $description);
-    }
-
-    /**
-     * Check if given quantity is a valid int and description is a valid string.
-     *
-     * @param  int $quantity
-     * @param  string $description
-     * @return bool
-     */
-    public function isValidQuantity(int $quantity, ?string $description = null)
-    {
-        if (gmp_sign($quantity) == -1) {
-            throw InvalidInventory::value($quantity);
-        }
-
-        return true;
     }
 
     /**
@@ -157,18 +157,6 @@ trait HasInventory
     }
 
     /**
-     * Return the current inventory on the model.
-     *
-     * @return \Caryley\LaravelInventory\Inventory
-     */
-    public function currentInventory()
-    {
-        $inventories = $this->relationLoaded('inventories') ? $this->inventories : $this->inventories();
-
-        return $inventories->first();
-    }
-
-    /**
      * Delete the inventory from the model.
      *
      * @param  int|null $newStock (optional passing an int to delete all inventory and create new one)
@@ -179,6 +167,22 @@ trait HasInventory
         $this->inventories()->delete();
 
         return $newStock >= 0 ? $this->setInventory($newStock) : true;
+    }
+
+    /**
+     * Check if given quantity is a valid int and description is a valid string.
+     *
+     * @param  int $quantity
+     * @param  string $description
+     * @return bool
+     */
+    protected function isValidInventory(int $quantity, ?string $description = null)
+    {
+        if (gmp_sign($quantity) === -1) {
+            throw InvalidInventory::value($quantity);
+        }
+
+        return true;
     }
 
     /**
@@ -196,7 +200,7 @@ trait HasInventory
 
         $builder->whereHas('inventories', function (Builder $query) use ($operator, $quantity, $inventoriableId) {
             $query->when($inventoriableId, function ($query, $inventoriableId) {
-                return $query->whereIn('inventoriable_id', $inventoriableId);
+                return $query->whereIn($this->getModelKeyColumnName(), $inventoriableId);
             })->where('quantity', $operator, $quantity)->whereIn('id', function (QueryBuilder $query) {
                 $query->select(DB::raw('max(id)'))
                         ->from($this->getInventoryTableName())
@@ -220,7 +224,7 @@ trait HasInventory
 
         $builder->whereHas('inventories', function (Builder $query) use ($quantity, $inventoriableId) {
             $query->when($inventoriableId, function ($query, $inventoriableId) {
-                return $query->whereIn('inventoriable_id', $inventoriableId);
+                return $query->whereIn($this->getModelKeyColumnName(), $inventoriableId);
             })->where('quantity', '<>', $quantity)->whereIn('id', function (QueryBuilder $query) {
                 $query->select(DB::raw('max(id)'))
                         ->from($this->getInventoryTableName())

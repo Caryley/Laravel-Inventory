@@ -11,6 +11,8 @@ abstract class TestCase extends BaseTest
 {
     protected $inventoryModel;
 
+    protected $secondInventoryModel;
+
     /**
      * Define environment setup.
      *
@@ -45,6 +47,8 @@ abstract class TestCase extends BaseTest
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
         $this->inventoryModel = InventoryModel::first();
+
+        $this->secondInventoryModel = InventoryModel::find(2);
     }
 
     protected function setUpDatabase($app)
@@ -69,6 +73,10 @@ abstract class TestCase extends BaseTest
 
         InventoryModel::create([
             'name' => 'InventoryModel',
+        ]);
+
+        InventoryModel::create([
+            'name' => 'SecondInventoryModel',
         ]);
 
         Inventory::create([
