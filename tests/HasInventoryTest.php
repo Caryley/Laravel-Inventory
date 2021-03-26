@@ -153,6 +153,23 @@ class HasInventoryTest extends TestCase
     }
 
     /** @test */
+    public function scope_to_find_where_inventory_is_the_parameters_passed_to_the_scope_in_multiple_models()
+    {
+        $this->secondInventoryModel->setInventory(20);
+
+        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
+        $this->assertEquals(20, $this->secondInventoryModel->inventories->first()->quantity);
+
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0, '=', [1, 2])->get()->first()->id);
+        $this->assertCount(1, InventoryModel::InventoryIs(0, '=', [1, 2])->get());
+
+        $this->assertEquals(20, $this->secondInventoryModel->inventories->first()->quantity);
+        $this->assertEquals($this->secondInventoryModel->id, InventoryModel::InventoryIs(20, '=', [1, 2])->get()->first()->id);
+
+        $this->assertCount(1, InventoryModel::InventoryIs(20, '=', [1, 2])->get());
+    }
+
+    /** @test */
     public function scope_to_find_where_inventory_is_the_opposite_then_parameters_passed_to_the_scope()
     {
         $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
