@@ -33,6 +33,16 @@ trait HasInventory
     }
 
     /**
+     * Checks if a model has a valid Inventory.
+     *
+     * @return bool
+     */
+    public function hasValidInventory()
+    {
+        return $this->inventories()->get()->isNotEmpty();
+    }
+
+    /**
      * Return the current inventory on the model.
      *
      * @return \Caryley\LaravelInventory\Inventory
@@ -52,7 +62,7 @@ trait HasInventory
      */
     public function inInventory($quantity = 1)
     {
-        return $this->inventories->first()->quantity > 0 && $this->inventories->first()->quantity >= $quantity;
+        return ! $this->notInInventory() ?? $this->inventories->first()->quantity > 0 && $this->inventories->first()->quantity >= $quantity;
     }
 
     /**
@@ -142,7 +152,7 @@ trait HasInventory
      * @param  string $description
      * @return \Caryley\LaravelInventory\Inventory
      */
-    public function createInventory(int $quantity, ?string $description = null)
+    protected function createInventory(int $quantity, ?string $description = null)
     {
         $oldInventory = $this->currentInventory();
 

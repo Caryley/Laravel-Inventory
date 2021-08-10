@@ -1,4 +1,5 @@
 # Laravel Inventory
+
 ![GitHub Workflow Status][link-tests]
 [![Latest Version on Packagist][ico-version]][link-packagist]
 [![Total Downloads][ico-downloads]][link-downloads]
@@ -14,6 +15,7 @@ The package offers the following function:
 -   Clear an inventory
 -   Return boolean if the model is in inventory
 -   Return boolean if the model is not in inventory
+-   Return boolean if model has valid inventory
 -   Scopes
 
 ## Installation
@@ -63,9 +65,14 @@ class Product extends Model
 ```php
 $product = Product::first();
 
+$product->hasValidInventory() //Return false
+
 $product->setInventory(10); // $product->currentInventory()->quantity; (Will result in 10)
 
-$product->currentInventory() //Return inventory instance
+$product->hasValidInventory() //Return true
+
+$product->currentInventory() //Return inventory instance if one exists
+
 
 $product->addInventory(5); // $product->currentInventory()->quantity; (Will result in 15)
 
@@ -93,6 +100,12 @@ Proudct::InventoryIsNot(10, [1,2,3])->get(); // Return all products where invent
 
 ```
 
+#### hasValidInventory()
+
+```php
+$product->hasValidInventory(); // Check if the model has a valid inventory and return a boolean
+```
+
 #### SetInventory()
 
 ```php
@@ -102,7 +115,7 @@ $product->setInventory(10); // $product->currentInventory()->quantity; (Will res
 #### currentInventory()
 
 ```php
-$product->currentInventory() //Return inventory instance
+$product->currentInventory() //Return inventory instance if one exists, if not it will return null
 ```
 
 #### addInventory()
@@ -189,6 +202,7 @@ If you discover any security related issues, please email author email instead o
 -   [All Contributors][link-contributors]
 
 ## Acknowledgements
+
 Laravel-Inventory draws inspiration from spatie/laravel-model-status & appstract/laravel-stock (even though it doesn't rely on any of them).
 
 ## License
