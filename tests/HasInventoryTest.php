@@ -23,11 +23,38 @@ class HasInventoryTest extends TestCase
     }
 
     /** @test */
+    public function can_set_inventory_on_an_model_without_any_inventory()
+    {
+        $this->secondInventoryModel->setInventory(10);
+        $this->secondInventoryModel->refresh();
+
+        $this->assertEquals(10, $this->secondInventoryModel->inventories->first()->quantity);
+    }
+
+    /** @test */
     public function return_true_when_inventory_is_existing()
     {
         $this->inventoryModel->setInventory(1);
         $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
         $this->assertTrue($this->inventoryModel->inInventory());
+    }
+
+    /** @test */
+    public function return_false_when_inventory_does_not_exist_and_checking_inIventory()
+    {
+        $this->assertFalse($this->secondInventoryModel->inInventory());
+    }
+
+    /** @test */
+    public function return_false_when_calling_hasValidInventory_on_a_model_without_inventory()
+    {
+        $this->assertFalse($this->secondInventoryModel->hasValidInventory());
+    }
+
+    /** @test */
+    public function return_true_when_calling_hasValidInventory_on_a_model_with_inventory()
+    {
+        $this->assertTrue($this->inventoryModel->hasValidInventory());
     }
 
     /** @test */
