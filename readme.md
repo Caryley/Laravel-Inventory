@@ -5,7 +5,7 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 [![StyleCI][ico-styleci]][link-styleci]
 
-The Laravel Inventory package helps track an inventory on any model with laravel. <br/>
+The Laravel Inventory package helps track an inventory on any model with Laravel. <br/>
 The package offers the following function:
 
 -   Set a new inventory
