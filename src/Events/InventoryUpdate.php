@@ -31,9 +31,9 @@ class InventoryUpdate
     /**
      * Create a new InventoryUpdate instance.
      *
-     * @param  \Caryley\LaravelInventory\Inventory|null $oldInventory
-     * @param  \Caryley\LaravelInventory\Inventory $newInventory
-     * @param  \Illuminate\Database\Eloquent\Model $model
+     * @param  \Caryley\LaravelInventory\Inventory|null  $oldInventory
+     * @param  \Caryley\LaravelInventory\Inventory  $newInventory
+     * @param  \Illuminate\Database\Eloquent\Model  $model
      * @return void
      */
     public function __construct($oldInventory, Inventory $newInventory, Model $model)

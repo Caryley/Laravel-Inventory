@@ -15,7 +15,7 @@ trait HasInventory
     /**
      * Get inventory of the model.
      *
-     * @return  \Illuminate\Database\Eloquent\Relations\MorphMany
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
     public function inventories()
     {
@@ -25,7 +25,7 @@ trait HasInventory
     /**
      * Return the last inventory instance of the model.
      *
-     * @return  \Illuminate\Database\Eloquent\Relations\Relation
+     * @return \Illuminate\Database\Eloquent\Relations\Relation
      */
     public function inventory()
     {
@@ -57,7 +57,7 @@ trait HasInventory
     /**
      * Determine if a given quantity is in inventory on the model.
      *
-     * @param  string $quantity
+     * @param  string  $quantity
      * @return bool
      */
     public function inInventory($quantity = 1)
@@ -82,8 +82,8 @@ trait HasInventory
     /**
      * Create or update model inventory.
      *
-     * @param  int $quantity
-     * @param  string $description
+     * @param  int  $quantity
+     * @param  string  $description
      * @return \Caryley\LaravelInventory\Inventory
      */
     public function setInventory(int $quantity, ?string $description = null)
@@ -98,8 +98,8 @@ trait HasInventory
     /**
      * Add or create an inventory.
      *
-     * @param  int $addQuantity
-     * @param  string $description
+     * @param  int  $addQuantity
+     * @param  string  $description
      * @return \Caryley\LaravelInventory\Inventory
      */
     public function addInventory(int $addQuantity = 1, ?string $description = null)
@@ -120,8 +120,8 @@ trait HasInventory
     /**
      * Subtract a given amount from the model inventory.
      *
-     * @param  int $subtractQuantity
-     * @param  string $description
+     * @param  int  $subtractQuantity
+     * @param  string  $description
      * @return \Caryley\LaravelInventory\Inventory
      */
     public function subtractInventory(int $subtractQuantity = 1, ?string $description = null)
@@ -148,8 +148,8 @@ trait HasInventory
     /**
      * Create a new inventory.
      *
-     * @param  int $quantity
-     * @param  string $description
+     * @param  int  $quantity
+     * @param  string  $description
      * @return \Caryley\LaravelInventory\Inventory
      */
     protected function createInventory(int $quantity, ?string $description = null)
@@ -169,7 +169,7 @@ trait HasInventory
     /**
      * Delete the inventory from the model.
      *
-     * @param  int|null $newStock (optional passing an int to delete all inventory and create new one)
+     * @param  int|null  $newStock  (optional passing an int to delete all inventory and create new one)
      * @return \Caryley\LaravelInventory\Inventory (if new inventory has been created upon receiving new quantity)
      */
     public function clearInventory($newStock = -1)
@@ -182,8 +182,8 @@ trait HasInventory
     /**
      * Check if given quantity is a valid int and description is a valid string.
      *
-     * @param  int $quantity
-     * @param  string $description
+     * @param  int  $quantity
+     * @param  string  $description
      * @return bool
      */
     protected function isValidInventory(int $quantity, ?string $description = null)
@@ -198,10 +198,10 @@ trait HasInventory
     /**
      * Scope inventory model for a givin quantity and operatior.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder $builder
-     * @param  int $quantity
-     * @param  string $operator (<,>,<=,>=,=,<>)
-     * @param  array $inventoriableId
+     * @param  \Illuminate\Database\Eloquent\Builder  $builder
+     * @param  int  $quantity
+     * @param  string  $operator  (<,>,<=,>=,=,<>)
+     * @param  array  $inventoriableId
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeInventoryIs(Builder $builder, $quantity = 0, $operator = '=', ...$inventoriableId)
@@ -224,8 +224,8 @@ trait HasInventory
      * Scope inventory model to everything other than given quantity.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
-     * @param  int $quantity
-     * @param  array $inventoriableId
+     * @param  int  $quantity
+     * @param  array  $inventoriableId
      * @return \Illuminate\Database\Query\Builder
      */
     public function scopeInventoryIsNot(Builder $builder, $quantity = 0, ...$inventoriableId)
