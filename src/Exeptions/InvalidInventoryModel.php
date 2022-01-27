@@ -9,7 +9,7 @@ class InvalidInventoryModel extends Exception
     /**
      * Invalid inventory model exception for an invalid model passed which does not extends \Caryley\LaravelInventory\Inventory.
      *
-     * @param  string $model
+     * @param  string  $model
      * @return self
      */
     public static function create($model)
