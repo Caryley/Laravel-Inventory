@@ -13,12 +13,14 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: [8.0, 7.4]
-        laravel: [8.*]
+        php: [8.1, 8.0]
+        laravel: [9.*, 8.*]
         dependency-vesrion: [prefer-lowest, prefer-stable]
         include:
+          -   laravel: 9.*
+              testbench: 7.*
           -   laravel: 8.*
-              testbench: 6.*
+              testbench: ^6.23
 
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
     steps:
