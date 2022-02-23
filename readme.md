@@ -23,25 +23,25 @@ The package offers the following function:
 You can install the package via composer:
 
 ```bash
-$ composer require caryley/laravel-inventory
+composer require caryley/laravel-inventory
 ```
 
 Must publish the migration with:
 
 ```bash
-$ php artisan vendor:publish --provider="Caryley\LaravelInventory\LaravelInventoryServiceProvider" --tag="migrations"
+php artisan vendor:publish --provider="Caryley\LaravelInventory\LaravelInventoryServiceProvider" --tag="migrations"
 ```
 
 Or optionaly publish togther with `config` file:
 
 ```bash
-$ php artisan vendor:publish --provider="Caryley\LaravelInventory\LaravelInventoryServiceProvider"
+php artisan vendor:publish --provider="Caryley\LaravelInventory\LaravelInventoryServiceProvider"
 ```
 
 Migrate `inventories` table:
 
 ```bash
-$ php artisan migrate
+php artisan migrate
 ```
 
 ## Usage
@@ -185,7 +185,7 @@ Please see the [changelog](changelog.md) for more information on what has change
 ## Testing
 
 ```bash
-$ composer test
+composer test
 ```
 
 ## Contributing
