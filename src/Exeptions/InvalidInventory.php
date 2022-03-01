@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Caryley\LaravelInventory\Exeptions;
 
 use Exception;
@@ -9,33 +11,33 @@ class InvalidInventory extends Exception
     /**
      * Invalid inventory exception for an invalid value.
      *
-     * @param  string  $quantity
+     * @param  int  $quantity
      * @return self
      */
-    public static function value($quantity)
+    public static function value(int $quantity): self
     {
-        return new self("Inventory `{$quantity}` is an invalid quantity.");
+        return new self("{$quantity} is an invalid quantity for an inventory.");
     }
 
     /**
      * Invalid inventory exception for an invalid subtraction action.
      *
-     * @param  string  $quantity
+     * @param  int  $quantity
      * @return self
      */
-    public static function subtract($quantity)
+    public static function subtract(int $quantity): self
     {
-        return new self("The inventory quantity is `0` and unable to set quantity negative by the amount of: `{$quantity}`.");
+        return new self("The inventory quantity is 0 and unable to set quantity negative by the amount of: {$quantity}.");
     }
 
     /**
      * Invalid inventory exception for an invalid quantity that results in a negative number.
      *
-     * @param  string  $quantity
+     * @param  int  $quantity
      * @return self
      */
-    public static function negative($quantity)
+    public static function negative(int $quantity): self
     {
-        return new self("The inventory quantity is less than `0`, unable to set quantity negative by the amount of: `{$quantity}`.");
+        return new self("The inventory quantity is less than 0, unable to set quantity negative by the amount of: {$quantity}.");
     }
 }

@@ -12,7 +12,7 @@ class LaravelInventoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../config/laravel-inventory.php', 'laravel-inventory');
     }
@@ -22,7 +22,7 @@ class LaravelInventoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         // Publishing is only necessary when using the CLI.
         if ($this->app->runningInConsole()) {
@@ -48,7 +48,7 @@ class LaravelInventoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function bootForConsole()
+    protected function bootForConsole(): void
     {
         // Publishing the configuration file.
         $this->publishes([
@@ -63,7 +63,7 @@ class LaravelInventoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function guardAgainstInvalidInventoryModel()
+    public function guardAgainstInvalidInventoryModel(): void
     {
         $modelClassName = config('laravel-inventory.inventory_model');
 

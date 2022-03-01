@@ -99,17 +99,4 @@ abstract class TestCase extends BaseTest
             LaravelInventoryServiceProvider::class,
         ];
     }
-
-    /**
-     * Get package aliases.
-     *
-     * @param  \Illuminate\Foundation\Application  $app
-     * @return array
-     */
-    protected function getPackageAliases($app)
-    {
-        return [
-            //
-        ];
-    }
 }

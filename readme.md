@@ -72,7 +72,7 @@ $product->setInventory(10); // $product->currentInventory()->quantity; (Will res
 $product->hasValidInventory() //Return true
 
 $product->currentInventory() //Return inventory instance if one exists
-
+$product->inventory() // //Return inventory instance if one exists
 
 $product->addInventory(5); // $product->currentInventory()->quantity; (Will result in 15)
 
@@ -83,6 +83,12 @@ $product->inInventory(); // Return true
 $product->clearInventory(); // $product->currentInventory(); (return null)
 
 $product->notInInventory(); // Return true
+
+--- Relationship ---
+
+$product->inventories(); // Return a MorphMany relationship
+
+$product->latestInventory(); // Return a MorphOne relationship
 
 --- Scopes ---
 
