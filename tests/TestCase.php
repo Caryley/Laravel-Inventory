@@ -19,7 +19,7 @@ abstract class TestCase extends BaseTest
     /**
      * Define environment setup.
      *
-     * @param    $app
+     * @param  $app
      * @return void
      */
     protected function getEnvironmentSetUp($app): void
