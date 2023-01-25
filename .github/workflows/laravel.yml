@@ -18,9 +18,9 @@ jobs:
         dependency-vesrion: [prefer-lowest, prefer-stable]
         include:
          -   laravel: 10.*
-              testbench: 8.*
+             testbench: 8.*
          -   laravel: 9.*
-              testbench: 7.*
+             testbench: 7.*
         exclude:
          - laravel: 10.*
            php: 8.0
