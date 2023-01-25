@@ -5,28 +5,27 @@
 [![Total Downloads][ico-downloads]][link-downloads]
 [![StyleCI][ico-styleci]][link-styleci]
 
-The Laravel Inventory package helps track an inventory on any model with Laravel. <br/>
-The package offers the following function:
+The Laravel Inventory package helps track an inventory on any Laravel model.
 
--   Set a new inventory
--   Return the current inventory
--   Add to an inventory
--   Subtract from an inventory
+<br/>
+
+The package offers the following functionality:
+
+-   Create and set a new inventory
+-   Retrieve the current inventory
+-   Manage inventory quantity
 -   Clear an inventory
--   Return boolean if the model is in inventory
--   Return boolean if the model is not in inventory
--   Return boolean if model has valid inventory
--   Scopes
+-   Determine if the model is in inventory or not.
+-   Determine if the model has a valid inventory
+-   Query scopes for inventoriable model
 
 ## Installation
-
-You can install the package via composer:
 
 ```bash
 composer require caryley/laravel-inventory
 ```
 
-Must publish the migration with:
+Publish the migration with:
 
 ```bash
 php artisan vendor:publish --provider="Caryley\LaravelInventory\LaravelInventoryServiceProvider" --tag="migrations"
@@ -46,7 +45,7 @@ php artisan migrate
 
 ## Usage
 
-Add the `HasInventory` to the Model, the trait will enable inventory tracking.
+Add the `HasInventory` trait to the model.
 
 ```php
 ...
@@ -60,123 +59,93 @@ class Product extends Model
 }
 ```
 
-### Functions
-
-```php
-$product = Product::first();
-
-$product->hasValidInventory() //Return false
-
-$product->setInventory(10); // $product->currentInventory()->quantity; (Will result in 10)
-
-$product->hasValidInventory() //Return true
-
-$product->currentInventory() //Return inventory instance if one exists
-$product->inventory() // //Return inventory instance if one exists
-
-$product->addInventory(5); // $product->currentInventory()->quantity; (Will result in 15)
-
-$product->subtractInventory(5); // $product->currentInventory()->quantity; (Will result in 10)
-
-$product->inInventory(); // Return true
-
-$product->clearInventory(); // $product->currentInventory(); (return null)
-
-$product->notInInventory(); // Return true
-
---- Relationship ---
-
-$product->inventories(); // Return a MorphMany relationship
-
-$product->latestInventory(); // Return a MorphOne relationship
-
---- Scopes ---
-
-Product::InventoryIs(10)->get(); // Return all products with inventory of 10
-
-Product::InventoryIs(10, '>=')->get(); // Return all products with inventory of 10 or greater
-
-Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or less
-
-Product::InventoryIs(10, '>=', [1,2,3])->get(); // Return all products with inventory of 10 or greater where product id is [1,2,3]
-
-Proudct::InventoryIsNot(10)->get(); // Return all products where inventory is not 10
-
-Proudct::InventoryIsNot(10, [1,2,3])->get(); // Return all products where inventory is not 10 where product id is 1,2,3
-
-```
-
 #### hasValidInventory()
 
 ```php
-$product->hasValidInventory(); // Check if the model has a valid inventory and return a boolean
+$product->hasValidInventory(); // Determine if the model has a valid inventory.
 ```
 
-#### SetInventory()
+#### setInventory()
 
 ```php
-$product->setInventory(10); // $product->currentInventory()->quantity; (Will result in 10) | Not allowed to use negative numbers
+$product->setInventory(10); // $product->currentInventory()->quantity; (Will result in 10) | Not allowed to use negative numbers.
 ```
 
 #### currentInventory()
 
 ```php
-$product->currentInventory() //Return inventory instance if one exists, if not it will return null
+$product->currentInventory() //Return inventory instance if one exists, if not it will return null.
 ```
 
 #### addInventory()
 
 ```php
-$product->addInventory(); // Will increment inventory by 1
+$product->addInventory(); // Will increment inventory by 1.
 
-$product->addInventory(10); // Will increment inventory by 10
+$product->addInventory(10); // Will increment inventory by 10.
+```
+
+#### incrementInventory()
+
+```php
+$product->incrementInventory(10); // Will increment inventory by 10.
 ```
 
 #### subtractInventory()
 
 ```php
-$product->subtractInventory(5); // Will subtract 5 from current inventory
+$product->subtractInventory(5); // Will subtract 5 from current inventory.
 
-$product->subtractInventory(-5); // Will subtract 5 from current inventory
+$product->subtractInventory(-5); // Will subtract 5 from current inventory.
+```
+
+#### decrementInventory()
+
+```php
+$product->decrementInventory(5); // Will subtract 5 from current inventory.
+
+$product->decrementInventory(-5); // Will subtract 5 from current inventory.
 ```
 
 #### inInventory()
 
 ```php
-$product->inInventory(); // Will return a boolean if model inventory greater than 0
+$product->inInventory(); // Will return a boolean if model inventory greater than 0.
 
-$product->inInventory(10); // Will return a boolean if model inventory greater than 10
+$product->inInventory(10); // Will return a boolean if model inventory greater than 10.
 ```
 
 #### notInInventory()
 
 ```php
-$product->notInInventory(); // Will return a boolean if model inventory is less than 0
+$product->notInInventory(); // Determine if model inventory is less than 0.
 ```
 
 #### clearInventory()
 
 ```php
-$product->clearInventory(); // Will clear all inventory for the model **Will delete all records, not only last record
+$product->clearInventory(); // Will clear all inventory for the model **Will delete all records, not only last record.
 
-$product->clearInventory(10); // Will clear all inventory for the model and will set new inventory of 10
+$product->clearInventory(10); // Will clear the inventory for the model and will set new inventory of 10.
 ```
 
-#### InventoryIs() Scope
+### Scopes
 
--   The scope accepts the first argument as quantity, the second argument as the operator, and the third argument as a model id or array of ids
+#### InventoryIs()
+
+-   The scope accepts the first argument as quantity, the second argument as the operator, and the third argument as a model id or array of ids.
 
 ```php
-Product::InventoryIs(10)->get(); // Return all products with inventory of 10
+Product::InventoryIs(10)->get(); // Return all products with inventory of 10.
 
-Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or less
+Product::InventoryIs(10, '<=')->get(); // Return all products with inventory of 10 or less.
 
 Product::InventoryIs(10, '>=', [1,2,3])->get(); // Return all products with inventory of 10 or greater where product id is 1,2,3
 ```
 
-#### InventoryIsNot() Scope
+#### InventoryIsNot()
 
--   The scope accepts the first argument as quantity and the second argument as a model id or array of ids
+-   The scope accepts a first argument of a quantity and a second argument of a model id or array of ids
 
 ```php
 Proudct::InventoryIsNot(10)->get(); // Return all products where inventory is not 10

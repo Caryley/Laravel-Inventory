@@ -36,30 +36,23 @@ trait HasInventory
         return $this->morphOne($this->getInventoryModelClassName(), 'inventoriable')->latestOfMany();
     }
 
-
     /**
-     * Return the current inventory on the model.
-     *
-     * @return \Caryley\LaravelInventory\Inventory|null
+     * @return Inventory|null
      */
-    public function currentInventory(): ?Inventory
+    public function currentInventory(): Inventory|null
     {
         return $this->relationLoaded('inventories') ? $this->inventories->first() : $this->latestInventory;
     }
 
     /**
-     * Return the current inventory on the model.
-     *
-     * @return \Caryley\LaravelInventory\Inventory|null
+     * @return Inventory|null
      */
-    public function inventory(): ?Inventory
+    public function inventory(): Inventory|null
     {
         return $this->currentInventory();
     }
 
     /**
-     * Checks if a model has a valid Inventory.
-     *
      * @return bool
      */
     public function hasValidInventory(): bool
@@ -68,23 +61,23 @@ trait HasInventory
     }
 
     /**
-     * Determine if a given quantity is in inventory on the model.
-     *
      * @param  int  $quantity
      * @return bool
      */
     public function inInventory(?int $quantity = 1): bool
     {
-        if (! $this->notInInventory() && $this->currentInventory()->quantity > 0 && $this->currentInventory()->quantity >= $quantity) {
-            return true;
+        if ($this->notInInventory()) {
+            return false;
         }
 
-        return false;
+        if ($this->currentInventory()->quantity < $quantity) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Determine if the model is not in inventory.
-     *
      * @return bool
      */
     public function notInInventory(): bool
@@ -101,7 +94,7 @@ trait HasInventory
      *
      * @param  int  $quantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
     public function setInventory(int $quantity, ?string $description = null): Inventory
     {
@@ -113,11 +106,21 @@ trait HasInventory
     }
 
     /**
+     * @param  int  $quantity
+     * @param  string  $description
+     * @return bool
+     */
+    public function incrementInventory(int $quantity = 1, ?string $description = null): Inventory
+    {
+        return $this->addInventory($quantity, $description);
+    }
+
+    /**
      * Add or create an inventory.
      *
      * @param  int  $addQuantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
     public function addInventory(int $addQuantity = 1, ?string $description = null): Inventory
     {
@@ -135,11 +138,21 @@ trait HasInventory
     }
 
     /**
+     * @param  int  $quantity
+     * @param  string  $description
+     * @return bool
+     */
+    public function decrementInventory(int $quantity = 1, ?string $description = null): Inventory
+    {
+        return $this->subtractInventory($quantity, $description);
+    }
+
+    /**
      * Subtract a given amount from the model inventory.
      *
      * @param  int  $subtractQuantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
     public function subtractInventory(int $subtractQuantity = 1, ?string $description = null): Inventory
     {
@@ -164,10 +177,6 @@ trait HasInventory
 
     /**
      * Create a new inventory.
-     *
-     * @param  int  $quantity
-     * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
      */
     protected function createInventory(int $quantity, ?string $description = null): Inventory
     {
@@ -186,22 +195,19 @@ trait HasInventory
     /**
      * Delete the inventory from the model.
      *
-     * @param  int|null  $newStock  (optional passing an int to delete all inventory and create new one)
-     * @return \Caryley\LaravelInventory\Inventory|bool (if new inventory has been created upon receiving new quantity)
+     * @param  int|null  $newStock
+     * @return Inventory|bool
      */
-    public function clearInventory($newStock = -1): Inventory|bool
+    public function clearInventory(?int $newStock = -1): Inventory|bool
     {
         $this->inventories()->delete();
 
+        // Will return new Inventory instance of new inventory has been set
         return $newStock >= 0 ? $this->setInventory($newStock) : true;
     }
 
     /**
-     * Check if given quantity is a valid int and description is a valid string.
-     *
-     * @param  int  $quantity
-     * @param  string  $description
-     * @return bool|InvalidInventory
+     * @throws InvalidInventory
      */
     protected function isValidInventory(int $quantity, ?string $description = null): ?bool
     {
@@ -221,7 +227,7 @@ trait HasInventory
      * @param  array  $inventoriableId
      * @return void
      */
-    public function scopeInventoryIs(Builder $builder, $quantity = 0, $operator = '=', ...$inventoriableId): void
+    public function scopeInventoryIs(Builder $builder, $quantity = 0, string $operator = '=', array ...$inventoriableId): void
     {
         $inventoriableId = is_array($inventoriableId) ? Arr::flatten($inventoriableId) : func_get_args();
 
@@ -245,7 +251,7 @@ trait HasInventory
      * @param  array  $inventoriableId
      * @return void
      */
-    public function scopeInventoryIsNot(Builder $builder, $quantity = 0, ...$inventoriableId): void
+    public function scopeInventoryIsNot(Builder $builder, int $quantity = 0, array ...$inventoriableId): void
     {
         $inventoriableId = is_array($inventoriableId) ? Arr::flatten($inventoriableId) : func_get_args();
 
@@ -274,8 +280,6 @@ trait HasInventory
     }
 
     /**
-     * Return the inventory model uses the trait.
-     *
      * @return string
      */
     protected function getInventoryModelType(): string
@@ -284,8 +288,6 @@ trait HasInventory
     }
 
     /**
-     * Return the model key column name set on config file.
-     *
      * @return string
      */
     protected function getModelKeyColumnName(): string
@@ -294,8 +296,6 @@ trait HasInventory
     }
 
     /**
-     * Return the model class name set on config file, uses to verify model is extending to \Caryley\LaravelInventory\Inventory class.
-     *
      * @return string
      */
     protected function getInventoryModelClassName(): string

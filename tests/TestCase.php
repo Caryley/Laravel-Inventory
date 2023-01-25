@@ -1,10 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Caryley\LaravelInventory\Tests;
 
 use Caryley\LaravelInventory\Inventory;
 use Caryley\LaravelInventory\LaravelInventoryServiceProvider;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Foundation\Application;
 use Orchestra\Testbench\TestCase as BaseTest;
 
 abstract class TestCase extends BaseTest
@@ -16,12 +19,11 @@ abstract class TestCase extends BaseTest
     /**
      * Define environment setup.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param    $app
      * @return void
      */
-    protected function getEnvironmentSetUp($app)
+    protected function getEnvironmentSetUp($app): void
     {
-        // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
             'driver' => 'sqlite',
@@ -30,14 +32,11 @@ abstract class TestCase extends BaseTest
         ]);
     }
 
-    protected function useSqliteConnection($app)
+    protected function useSqliteConnection($app): void
     {
         $app->config->set('database.default', 'sqlite');
     }
 
-    /**
-     * Setup the test environment.
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -51,7 +50,7 @@ abstract class TestCase extends BaseTest
         $this->secondInventoryModel = InventoryModel::find(2);
     }
 
-    protected function setUpDatabase($app)
+    protected function setUpDatabase($app): void
     {
         $builder = $app['db']->connection()->getSchemaBuilder();
 
@@ -90,10 +89,10 @@ abstract class TestCase extends BaseTest
     /**
      * Get package providers.
      *
-     * @param  \Illuminate\Foundation\Application  $app
+     * @param  Application  $app
      * @return array
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             LaravelInventoryServiceProvider::class,
