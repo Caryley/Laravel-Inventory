@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        php: ['8.0', 8.1, 8.2]
+        php: [8.0, 8.1, 8.2]
         laravel: [9, 10]
         dependency-vesrion: [prefer-lowest, prefer-stable]
         include:
