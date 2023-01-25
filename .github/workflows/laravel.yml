@@ -1,56 +1,56 @@
 name: Laravel-Inventory Test
 
 on:
-    push:
-        branches: [master, develop]
-    pull_request:
-        branches: [master, develop]
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
 
 jobs:
-    laravel-tests:
-        runs-on: ${{ matrix.os }}
-        strategy:
-            fail-fast: false
-            matrix:
-                os: [ubuntu-latest]
-                php: ['8.0', 8.1, 8.2]
-                laravel: [9, 10]
-                dependency-vesrion: [prefer-lowest, prefer-stable]
-                include:
-                    - laravel: 10.*
-                      testbench: 8.*
-                    - laravel: 9.*
-                      testbench: 7.*
-                exclude:
-                    - laravel: 10.*
-                      php: 8.0
+  laravel-tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        php: ['8.0', 8.1, 8.2]
+        laravel: [9, 10]
+        dependency-vesrion: [prefer-lowest, prefer-stable]
+        include:
+         -   laravel: 10.*
+             testbench: 8.*
+         -   laravel: 9.*
+             testbench: 7.*
+        exclude:
+         - laravel: 10.*
+           php: 8.0
 
-        name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
-        steps:
-            - name: Checkout Code
-              uses: actions/checkout@v3
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-            - name: Cache Composer packages
-              id: composer-cache
-              uses: actions/cache@v2
-              with:
-                  path: vendor
-                  key: ${{ matrix.os }}-php-${{ hashFiles('**/composer.lock') }}
-                  restore-keys: |
-                      ${{ matrix.os }}-php-
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+         path: vendor
+         key: ${{ matrix.os }}-php-${{ hashFiles('**/composer.lock') }}
+         restore-keys: |
+           ${{ matrix.os }}-php-
 
-            - name: Setup PHP
-              uses: shivammathur/setup-php@v2
-              with:
-                  php-version: ${{ matrix.php }}
-                  extensions: dom, curl, libxml, mbstring, zip
-                  tools: composer:v2
-                  coverage: none
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: dom, curl, libxml, mbstring, zip
+          tools: composer:v2
+          coverage: none
 
-            - name: Install dependencies
-              run: |
-                  composer require "illuminate/contracts=${{ matrix.laravel }}" --no-update
-                  composer update --prefer-dist --no-interaction --no-progress
+      -   name: Install dependencies
+          run: |
+           composer require "illuminate/contracts=${{ matrix.laravel }}" --no-update
+           composer update --prefer-dist --no-interaction --no-progress
 
-            - name: Execute Tests
-              run: vendor/bin/pest
+      -   name: Execute Tests
+          run: vendor/bin/pest
