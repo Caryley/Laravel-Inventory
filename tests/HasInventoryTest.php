@@ -33,7 +33,6 @@ class HasInventoryTest extends TestCase
 
         $this->secondInventoryModel->setInventory(10);
         $this->secondInventoryModel->refresh();
-
         $this->assertEquals(10, $this->secondInventoryModel->currentInventory()->quantity);
     }
 
@@ -41,10 +40,11 @@ class HasInventoryTest extends TestCase
     public function return_true_when_inventory_is_existing_and_quantity_match()
     {
         $this->assertFalse($this->inventoryModel->inInventory());
-
         $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->currentInventory()->quantity);
+
+        $this->assertEquals(1, $this->inventoryModel->refresh()->currentInventory()->quantity);
         $this->assertTrue($this->inventoryModel->inInventory());
+
 
         $this->inventoryModel->setInventory(3);
         $this->inventoryModel->refresh();
@@ -84,7 +84,7 @@ class HasInventoryTest extends TestCase
     public function inventory_can_be_positive_number()
     {
         $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->currentInventory()->quantity);
+        $this->assertEquals(1, $this->inventoryModel->refresh()->currentInventory()->quantity);
     }
 
     /** @test */
@@ -142,18 +142,18 @@ class HasInventoryTest extends TestCase
     public function inventory_subtraction_convert_to_absolute_numbers()
     {
         $this->inventoryModel->setInventory(5);
-        $this->assertEquals(5, $this->inventoryModel->currentInventory()->quantity);
+        $this->assertEquals(5, $this->inventoryModel->refresh()->currentInventory()->quantity);
 
         $this->inventoryModel->subtractInventory(-4);
         $this->inventoryModel->refresh();
-        $this->assertEquals(1, $this->inventoryModel->currentInventory()->quantity);
+        $this->assertEquals(1, $this->inventoryModel->refresh()->currentInventory()->quantity);
     }
 
     /** @test */
     public function inventory_can_not_be_subtracted_be_negative_value()
     {
         $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->currentInventory()->quantity);
+        $this->assertEquals(1, $this->inventoryModel->refresh()->currentInventory()->quantity);
 
         $this->expectExceptionMessage('The inventory quantity is less than 0, unable to set quantity negative by the amount of: 2.');
 
@@ -182,14 +182,14 @@ class HasInventoryTest extends TestCase
     public function scope_to_find_where_inventory_match_the_parameters_passed_to_the_scope()
     {
         $this->assertEquals(0, $this->inventoryModel->currentInventory()->quantity);
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIs(0)->get()->first());
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0)->get()->first()->id);
 
         $this->inventoryModel->setInventory(10);
         $this->inventoryModel->refresh();
 
         $this->assertEquals(10, $this->inventoryModel->currentInventory()->quantity);
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIs(9, '>')->get()->first());
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIs(9, '>=')->get()->first());
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(9, '>')->get()->first()->id);
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(9, '>=')->get()->first()->id);
 
         $this->assertNull(InventoryModel::InventoryIs(9, '<')->get()->first());
         $this->assertNull(InventoryModel::InventoryIs(9, '<=')->get()->first());
@@ -199,16 +199,14 @@ class HasInventoryTest extends TestCase
     public function scope_to_find_where_inventory_is_the_parameters_passed_to_the_scope_in_multiple_models()
     {
         $this->secondInventoryModel->setInventory(20);
+        $this->secondInventoryModel->refresh();
 
         $this->assertEquals(0, $this->inventoryModel->currentInventory()->quantity);
-        $this->assertEquals(20, $this->secondInventoryModel->currentInventory()->quantity);
-
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIs(0, '=', [1, 2])->get()->first());
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0, '=', [1, 2])->get()->first()->id);
         $this->assertCount(1, InventoryModel::InventoryIs(0, '=', [1, 2])->get());
 
         $this->assertEquals(20, $this->secondInventoryModel->currentInventory()->quantity);
-        $this->assertEquals($this->secondInventoryModel, InventoryModel::InventoryIs(20, '=', [1, 2])->get()->first());
-
+        $this->assertEquals($this->secondInventoryModel->id, InventoryModel::InventoryIs(20, '=', [1, 2])->get()->first()->id);
         $this->assertCount(1, InventoryModel::InventoryIs(20, '=', [1, 2])->get());
     }
 
@@ -217,8 +215,8 @@ class HasInventoryTest extends TestCase
     {
         $this->assertEquals(0, $this->inventoryModel->currentInventory()->quantity);
 
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIs(0)->get()->first());
-        $this->assertEquals($this->inventoryModel, InventoryModel::InventoryIsNot(1)->get()->first());
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0)->get()->first()->id);
+        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIsNot(1)->get()->first()->id);
     }
 
     /** @test */

@@ -36,6 +36,7 @@ trait HasInventory
         return $this->morphOne($this->getInventoryModelClassName(), 'inventoriable')->latestOfMany();
     }
 
+
     /**
      * Return the current inventory on the model.
      *
@@ -43,7 +44,7 @@ trait HasInventory
      */
     public function currentInventory(): ?Inventory
     {
-        return $this->relationLoaded('inventories') ? $this->inventories->first() : $this->latestInventory()->first();
+        return $this->relationLoaded('inventories') ? $this->inventories->first() : $this->latestInventory;
     }
 
     /**
