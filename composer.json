@@ -16,7 +16,7 @@
     ],
     "homepage": "https://github.com/caryley/laravel-inventory",
     "require": {
-        "php": "^8.0|^8.2",
+        "php": "^8.0|^8.1",
         "illuminate/support": "^9.0|^10.0"
     },
     "require-dev": {
