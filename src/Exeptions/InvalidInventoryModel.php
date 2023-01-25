@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Caryley\LaravelInventory\Exeptions;
 
 use Exception;
@@ -12,7 +14,7 @@ class InvalidInventoryModel extends Exception
      * @param  string  $model
      * @return self
      */
-    public static function create($model)
+    public static function create($model): self
     {
         return new self("The model `{$model}` is invalid. A valid model must extend the model Caryley\LaravelInventory\Inventory.");
     }

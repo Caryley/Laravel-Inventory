@@ -7,3 +7,5 @@ app
 .phpunit.result.cache
 composer.lock
 .DS_Store
+.php-cs-fixer.php
+.php-cs-fixer.cache

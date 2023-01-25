@@ -1,230 +1,246 @@
 <?php
 
-namespace Caryley\LaravelInventory\Tests;
+use Caryley\LaravelInventory\Events\InventoryUpdate;
+use Caryley\LaravelInventory\Exeptions\InvalidInventory;
+use Caryley\LaravelInventory\Inventory;
+use Caryley\LaravelInventory\Tests\InventoryModel;
+use Illuminate\Support\Facades\Event;
 
-class HasInventoryTest extends TestCase
-{
-    /** @test */
-    public function return_true_when_inventory_is_missing()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-        $this->assertTrue($this->inventoryModel->notInInventory());
-    }
+it('return true when inventory is missing', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+    expect($this->inventoryModel->notInInventory())->toBeTrue();
+});
 
-    /** @test */
-    public function can_set_inventory()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
+it('can set inventory', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
 
-        $this->inventoryModel->setInventory(10);
-        $this->inventoryModel->refresh();
+    $this->inventoryModel->setInventory(10);
+    $this->inventoryModel->refresh();
 
-        $this->assertEquals(10, $this->inventoryModel->inventories->first()->quantity);
-    }
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(10);
+});
 
-    /** @test */
-    public function can_set_inventory_on_an_model_without_any_inventory()
-    {
-        $this->secondInventoryModel->setInventory(10);
-        $this->secondInventoryModel->refresh();
+it('can not set negative inventory', function () {
+    $this->inventoryModel->setInventory(-1);
+})->throws(InvalidInventory::class, '-1 is an invalid quantity for an inventory.');
 
-        $this->assertEquals(10, $this->secondInventoryModel->inventories->first()->quantity);
-    }
+it('can set inventory on a model without any inventory', function () {
+    expect($this->secondInventoryModel->notInInventory())->toBeTrue();
 
-    /** @test */
-    public function return_true_when_inventory_is_existing()
-    {
-        $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
-        $this->assertTrue($this->inventoryModel->inInventory());
-    }
+    $this->secondInventoryModel->setInventory(10);
+    $this->secondInventoryModel->refresh();
 
-    /** @test */
-    public function return_false_when_inventory_does_not_exist_and_checking_inIventory()
-    {
-        $this->assertFalse($this->secondInventoryModel->inInventory());
-    }
+    expect($this->secondInventoryModel->currentInventory()->quantity)->toBe(10);
+});
 
-    /** @test */
-    public function return_false_when_calling_hasValidInventory_on_a_model_without_inventory()
-    {
-        $this->assertFalse($this->secondInventoryModel->hasValidInventory());
-    }
+it('return true when inventory is existing and quantity match', function () {
+    expect($this->inventoryModel->inInventory())->toBeFalse();
+    $this->inventoryModel->setInventory(1);
 
-    /** @test */
-    public function return_true_when_calling_hasValidInventory_on_a_model_with_inventory()
-    {
-        $this->assertTrue($this->inventoryModel->hasValidInventory());
-    }
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(1);
+    expect($this->inventoryModel->inInventory())->toBeTrue();
 
-    /** @test */
-    public function it_can_not_be_negative_quantity()
-    {
-        $this->expectExceptionMessage('Inventory `-1` is an invalid quantity.');
-        $this->inventoryModel->setInventory(-1);
+    $this->inventoryModel->setInventory(3);
+    $this->inventoryModel->refresh();
 
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-    }
+    expect($this->inventoryModel->inInventory(4))->toBeFalse();
+    expect($this->inventoryModel->inInventory(3))->toBeTrue();
+});
 
-    /** @test */
-    public function inventory_can_be_positive_number()
-    {
-        $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
-    }
+it('return false when inventory does not exist and checking inIventory', function () {
+    expect($this->secondInventoryModel->inInventory())->toBeFalse();
+});
 
-    /** @test */
-    public function inventory_can_be_incremented()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-        /**
-         * Default addition is 1.
-         */
-        $this->inventoryModel->addInventory();
+it('return false when calling hasValidInventory on a model without inventory', function () {
+    expect($this->secondInventoryModel->hasValidInventory())->toBeFalse();
+});
 
-        $this->inventoryModel->refresh();
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
-    }
+it('return true when calling hasValidInventory on a model with inventory', function () {
+    expect($this->inventoryModel->hasValidInventory())->toBeTrue();
+});
 
-    /** @test */
-    public function add_to_a_non_existing_inventory()
-    {
-        $this->inventoryModel->clearInventory();
-        $this->assertNull($this->inventoryModel->inventory());
+it('prevent inventory from being set to a negative number', function () {
+    $this->inventoryModel->setInventory(-1);
 
-        $this->inventoryModel->addInventory(5);
-        $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+})->throws(InvalidInventory::class, '-1 is an invalid quantity for an inventory.');
 
-        $this->assertEquals(5, $this->inventoryModel->inventories->first()->quantity);
-    }
+it('inventory can be positive number', function () {
+    $this->inventoryModel->setInventory(1);
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(1);
+});
 
-    /** @test */
-    public function inventory_can_be_incremented_by_positive_number()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-        $this->inventoryModel->addInventory(10);
+it('inventory can be incremented', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
 
-        $this->inventoryModel->refresh();
-        $this->assertEquals(10, $this->inventoryModel->inventories->first()->quantity);
-    }
+    $this->inventoryModel->addInventory();
 
-    /** @test */
-    public function inventory_can_be_subtracted()
-    {
-        $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(1);
 
-        /**
-         * Default subtract is 1.
-         */
-        $this->inventoryModel->subtractInventory();
-        $this->inventoryModel->refresh();
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-    }
+    $this->inventoryModel->addInventory();
 
-    /** @test */
-    public function inventory_subtraction_convert_to_absolute_numbers()
-    {
-        $this->inventoryModel->setInventory(5);
-        $this->assertEquals(5, $this->inventoryModel->inventories->first()->quantity);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(2);
+});
 
-        $this->inventoryModel->subtractInventory(-4);
-        $this->inventoryModel->refresh();
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
-    }
+it('inventory can be incremented by positive number', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
 
-    /** @test */
-    public function inventory_can_not_be_subtracted_to_negative()
-    {
-        $this->inventoryModel->setInventory(1);
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
+    $this->inventoryModel->addInventory(10);
 
-        $this->expectExceptionMessage('The inventory quantity is less than `0`, unable to set quantity negative by the amount of: `2`.');
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(10);
+});
 
-        $this->inventoryModel->subtractInventory(-2);
+it('increment inventory by using incrementInventory', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
 
-        $this->inventoryModel->refresh();
-        $this->assertEquals(1, $this->inventoryModel->inventories->first()->quantity);
-    }
+    $this->inventoryModel->incrementInventory();
 
-    /** @test */
-    public function return_current_inventory()
-    {
-        $this->assertCount(1, $this->inventoryModel->inventories);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(1);
+});
 
-        $this->inventoryModel->setInventory(10);
-        $this->inventoryModel->refresh();
-        $this->assertEquals(10, $this->inventoryModel->inventories->first()->quantity);
+it('add to a non existing inventory', function () {
+    $this->inventoryModel->clearInventory();
+    expect($this->inventoryModel->inventory())->toBeNull();
 
-        $this->assertCount(2, $this->inventoryModel->inventories);
+    $this->inventoryModel->addInventory(5);
+    $this->inventoryModel->refresh();
 
-        $this->assertEquals(10, $this->inventoryModel->currentInventory()->quantity);
-    }
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(5);
+});
 
-    /** @test */
-    public function scope_to_find_where_inventory_is_the_parameters_passed_to_the_scope()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0)->get()->first()->id);
+it('inventory can be decremented', function () {
+    $this->inventoryModel->setInventory(1);
+    expect($this->inventoryModel->inventories->first()->quantity)->toBe(1);
 
-        $this->inventoryModel->setInventory(10);
-        $this->inventoryModel->refresh();
+    $this->inventoryModel->subtractInventory();
 
-        $this->assertEquals(10, $this->inventoryModel->inventories->first()->quantity);
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(9, '>')->get()->first()->id);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->inventories->first()->quantity)->toBe(0);
+});
 
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(9, '>=')->get()->first()->id);
+it('decrement inventory by using decrementInventory', function () {
+    $this->inventoryModel->setInventory(1);
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(1);
 
-        $this->assertNull(InventoryModel::InventoryIs(9, '<')->get()->first());
-        $this->assertNull(InventoryModel::InventoryIs(9, '<=')->get()->first());
-    }
+    $this->inventoryModel->decrementInventory();
 
-    /** @test */
-    public function scope_to_find_where_inventory_is_the_parameters_passed_to_the_scope_in_multiple_models()
-    {
-        $this->secondInventoryModel->setInventory(20);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+});
 
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
-        $this->assertEquals(20, $this->secondInventoryModel->inventories->first()->quantity);
+it('converts inventory subtraction to absolute numbers', function () {
+    $this->inventoryModel->setInventory(5);
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(5);
 
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0, '=', [1, 2])->get()->first()->id);
-        $this->assertCount(1, InventoryModel::InventoryIs(0, '=', [1, 2])->get());
+    $this->inventoryModel->subtractInventory(-4);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(1);
+});
 
-        $this->assertEquals(20, $this->secondInventoryModel->inventories->first()->quantity);
-        $this->assertEquals($this->secondInventoryModel->id, InventoryModel::InventoryIs(20, '=', [1, 2])->get()->first()->id);
+test('inventory subtraction can not be negative', function () {
+    $this->inventoryModel->setInventory(1);
+    expect($this->inventoryModel->refresh()->currentInventory()->quantity)->toBe(1);
 
-        $this->assertCount(1, InventoryModel::InventoryIs(20, '=', [1, 2])->get());
-    }
+    $this->inventoryModel->subtractInventory(-2);
 
-    /** @test */
-    public function scope_to_find_where_inventory_is_the_opposite_then_parameters_passed_to_the_scope()
-    {
-        $this->assertEquals(0, $this->inventoryModel->inventories->first()->quantity);
+    $this->inventoryModel->refresh();
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(1);
+})->throws(InvalidInventory::class, 'The inventory quantity is less than 0, unable to set quantity negative by the amount of: 2.');
 
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIs(0)->get()->first()->id);
+test('inventory subtraction can not be bellow 0', function () {
+    $this->inventoryModel->clearInventory();
 
-        $this->assertEquals($this->inventoryModel->id, InventoryModel::InventoryIsNot(1)->get()->first()->id);
-    }
+    $this->inventoryModel->subtractInventory(-2);
+    $this->inventoryModel->refresh();
 
-    /** @test */
-    public function inventory_can_be_clear_and_destroyed()
-    {
-        $this->assertCount(1, $this->inventoryModel->inventories);
+    expect($this->inventoryModel->currentInventory())->toBeNull();
+})->throws(InvalidInventory::class, 'The inventory quantity is 0 and unable to set quantity negative by the amount of: 2.');
 
-        $this->inventoryModel->clearInventory();
-        $this->inventoryModel->refresh();
+it('return current inventory', function () {
+    expect($this->inventoryModel->inventories)
+        ->count()->toBe(1)
+        ->first()->toBeInstanceOf(Inventory::class);
 
-        $this->assertNull($this->inventoryModel->currentInventory());
-        $this->assertCount(0, $this->inventoryModel->inventories);
-    }
+    $this->inventoryModel->setInventory(20);
+    $this->inventoryModel->refresh();
 
-    /** @test */
-    public function when_clearing_an_inventory_you_can_set_new_inventory_at_the_same_time()
-    {
-        $this->inventoryModel->clearInventory(10);
-        $this->inventoryModel->refresh();
+    expect($this->inventoryModel)
+        ->currentInventory()->quantity->toBe(20)
+        ->inventories->count()->toBe(2)
+        ->fresh()->currentInventory()->quantity->toBe(20);
+});
 
-        $this->assertCount(1, $this->inventoryModel->inventories);
-        $this->assertEquals(10, $this->inventoryModel->currentInventory()->quantity);
-    }
-}
+test('scope to find where inventory match the parameters passed to the scope', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+    expect($this->inventoryModel->id)->toBe(InventoryModel::InventoryIs(0)->get()->first()->id);
+
+    $this->inventoryModel->setInventory(10);
+    $this->inventoryModel->refresh();
+
+    expect($this->inventoryModel)
+        ->currentInventory()->quantity->toBe(10)
+        ->id->toBe(InventoryModel::InventoryIs(10)->get()->first()->id)
+        ->id->toBe(InventoryModel::InventoryIs(10, '>=')->get()->first()->id)
+        ->id->toBe(InventoryModel::InventoryIs(9, '>')->get()->first()->id)
+        ->id->toBe(InventoryModel::InventoryIs(9, '>=')->get()->first()->id)
+        ->id->toBe(InventoryModel::InventoryIs(10, '<=')->get()->first()->id);
+
+    expect(InventoryModel::InventoryIs(9, '<')->get()->first())->toBeNull();
+    expect(InventoryModel::InventoryIs(9, '<=')->get()->first())->toBeNull();
+});
+
+test('scope to find where inventory is the parameters passed to the scope in multiple models', function () {
+    $this->secondInventoryModel->setInventory(20);
+    $this->secondInventoryModel->refresh();
+
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+    expect(InventoryModel::InventoryIs(0, '=', [1, 2])->get())
+        ->first()->id->toBe($this->inventoryModel->id)
+        ->count()->toBe(1);
+
+    expect($this->secondInventoryModel->currentInventory()->quantity)->toBe(20);
+    expect(InventoryModel::InventoryIs(20, '=', [1, 2])->get())
+        ->first()->id->toBe($this->secondInventoryModel->id)
+        ->count()->toBe(1);
+});
+
+test('scope to find where inventory is the opposite then parameters passed to the scope', function () {
+    expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
+
+    expect($this->inventoryModel->id)
+        ->toBe(InventoryModel::InventoryIsNot(10, [1])->get()->first()->id)
+        ->toBe(InventoryModel::InventoryIs(0)->get()->first()->id)
+        ->toBe(InventoryModel::InventoryIsNot(1)->get()->first()->id);
+});
+
+it('clear inventory and destroy all inventory records', function () {
+    expect($this->inventoryModel->inventories)->count()->toBe(1);
+
+    $this->inventoryModel->clearInventory();
+    $this->inventoryModel->refresh();
+
+    expect($this->inventoryModel)
+        ->currentInventory()->toBeNull()
+        ->inventories->count()->toBe(0);
+});
+
+it('clear inventory and set new inventory at the same time', function () {
+    $this->inventoryModel->clearInventory(10);
+    $this->inventoryModel->refresh();
+
+    expect($this->inventoryModel)
+        ->inventories->count()->toBe(1)
+        ->currentInventory()->quantity->toBe(10);
+});
+
+it('dispatch an event when inventory is maniuplated', function () {
+    Event::fake();
+
+    $this->inventoryModel->setInventory(2);
+
+    Event::assertDispatched(InventoryUpdate::class);
+});

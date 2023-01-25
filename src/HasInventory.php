@@ -1,10 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Caryley\LaravelInventory;
 
 use Caryley\LaravelInventory\Events\InventoryUpdate;
 use Caryley\LaravelInventory\Exeptions\InvalidInventory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Support\Arr;
@@ -17,66 +21,72 @@ trait HasInventory
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany
      */
-    public function inventories()
+    public function inventories(): MorphMany
     {
         return $this->morphMany($this->getInventoryModelClassName(), 'inventoriable')->latest('id');
     }
 
     /**
-     * Return the last inventory instance of the model.
+     * Return the current inventory on the model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\Relation
+     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
-    public function inventory()
+    public function latestInventory(): MorphOne
+    {
+        return $this->morphOne($this->getInventoryModelClassName(), 'inventoriable')->latestOfMany();
+    }
+
+    /**
+     * @return Inventory|null
+     */
+    public function currentInventory(): Inventory|null
+    {
+        return $this->relationLoaded('inventories') ? $this->inventories->first() : $this->latestInventory;
+    }
+
+    /**
+     * @return Inventory|null
+     */
+    public function inventory(): Inventory|null
     {
         return $this->currentInventory();
     }
 
     /**
-     * Checks if a model has a valid Inventory.
-     *
      * @return bool
      */
-    public function hasValidInventory()
+    public function hasValidInventory(): bool
     {
-        return $this->inventories()->get()->isNotEmpty();
+        return  (bool) $this->currentInventory();
     }
 
     /**
-     * Return the current inventory on the model.
-     *
-     * @return \Caryley\LaravelInventory\Inventory
+     * @param  int  $quantity
+     * @return bool
      */
-    public function currentInventory()
+    public function inInventory(?int $quantity = 1): bool
     {
-        $inventories = $this->relationLoaded('inventories') ? $this->inventories : $this->inventories();
+        if ($this->notInInventory()) {
+            return false;
+        }
 
-        return $inventories->first();
+        if ($this->currentInventory()->quantity < $quantity) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
-     * Determine if a given quantity is in inventory on the model.
-     *
-     * @param  string  $quantity
      * @return bool
      */
-    public function inInventory($quantity = 1)
+    public function notInInventory(): bool
     {
-        return ! $this->notInInventory() ?? $this->inventories->first()->quantity > 0 && $this->inventories->first()->quantity >= $quantity;
-    }
-
-    /**
-     * Determine if the model is not in inventory.
-     *
-     * @return bool
-     */
-    public function notInInventory()
-    {
-        if (! isset($this->inventories->first()->quantity)) {
+        if (! $this->hasValidInventory()) {
             return true;
         }
 
-        return $this->inventories->first()->quantity <= 0;
+        return $this->currentInventory()->quantity <= 0;
     }
 
     /**
@@ -84,15 +94,23 @@ trait HasInventory
      *
      * @param  int  $quantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
-    public function setInventory(int $quantity, ?string $description = null)
+    public function setInventory(int $quantity, ?string $description = null): Inventory
     {
-        if (! $this->isValidInventory($quantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($quantity, $description);
 
         return $this->createInventory($quantity, $description);
+    }
+
+    /**
+     * @param  int  $quantity
+     * @param  string  $description
+     * @return bool
+     */
+    public function incrementInventory(int $quantity = 1, ?string $description = null): Inventory
+    {
+        return $this->addInventory($quantity, $description);
     }
 
     /**
@@ -100,21 +118,29 @@ trait HasInventory
      *
      * @param  int  $addQuantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
-    public function addInventory(int $addQuantity = 1, ?string $description = null)
+    public function addInventory(int $addQuantity = 1, ?string $description = null): Inventory
     {
-        if (! $this->isValidInventory($addQuantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($addQuantity, $description);
 
         if ($this->notInInventory()) {
             return $this->createInventory($addQuantity, $description);
         }
 
-        $newQuantity = $this->inventories->first()->quantity + $addQuantity;
+        $newQuantity = $this->currentInventory()->quantity + $addQuantity;
 
         return $this->createInventory($newQuantity, $description);
+    }
+
+    /**
+     * @param  int  $quantity
+     * @param  string  $description
+     * @return bool
+     */
+    public function decrementInventory(int $quantity = 1, ?string $description = null): Inventory
+    {
+        return $this->subtractInventory($quantity, $description);
     }
 
     /**
@@ -122,21 +148,19 @@ trait HasInventory
      *
      * @param  int  $subtractQuantity
      * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
+     * @return Inventory
      */
-    public function subtractInventory(int $subtractQuantity = 1, ?string $description = null)
+    public function subtractInventory(int $subtractQuantity = 1, ?string $description = null): Inventory
     {
         $subtractQuantity = abs($subtractQuantity);
 
-        if (! $this->isValidInventory($subtractQuantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($subtractQuantity, $description);
 
         if ($this->notInInventory()) {
             throw InvalidInventory::subtract($subtractQuantity);
         }
 
-        $newQuantity = $this->inventories->first()->quantity - abs($subtractQuantity);
+        $newQuantity = $this->currentInventory()->quantity - abs($subtractQuantity);
 
         if ($newQuantity < 0) {
             throw InvalidInventory::negative($subtractQuantity);
@@ -147,12 +171,8 @@ trait HasInventory
 
     /**
      * Create a new inventory.
-     *
-     * @param  int  $quantity
-     * @param  string  $description
-     * @return \Caryley\LaravelInventory\Inventory
      */
-    protected function createInventory(int $quantity, ?string $description = null)
+    protected function createInventory(int $quantity, ?string $description = null): Inventory
     {
         $oldInventory = $this->currentInventory();
 
@@ -169,24 +189,21 @@ trait HasInventory
     /**
      * Delete the inventory from the model.
      *
-     * @param  int|null  $newStock  (optional passing an int to delete all inventory and create new one)
-     * @return \Caryley\LaravelInventory\Inventory (if new inventory has been created upon receiving new quantity)
+     * @param  int|null  $newStock
+     * @return Inventory|bool
      */
-    public function clearInventory($newStock = -1)
+    public function clearInventory(?int $newStock = -1): Inventory|bool
     {
         $this->inventories()->delete();
 
+        // Will return new Inventory instance of new inventory has been set
         return $newStock >= 0 ? $this->setInventory($newStock) : true;
     }
 
     /**
-     * Check if given quantity is a valid int and description is a valid string.
-     *
-     * @param  int  $quantity
-     * @param  string  $description
-     * @return bool
+     * @throws InvalidInventory
      */
-    protected function isValidInventory(int $quantity, ?string $description = null)
+    protected function isValidInventory(int $quantity, ?string $description = null): ?bool
     {
         if (gmp_sign($quantity) === -1) {
             throw InvalidInventory::value($quantity);
@@ -202,9 +219,9 @@ trait HasInventory
      * @param  int  $quantity
      * @param  string  $operator  (<,>,<=,>=,=,<>)
      * @param  array  $inventoriableId
-     * @return \Illuminate\Database\Query\Builder
+     * @return void
      */
-    public function scopeInventoryIs(Builder $builder, $quantity = 0, $operator = '=', ...$inventoriableId)
+    public function scopeInventoryIs(Builder $builder, $quantity = 0, string $operator = '=', array ...$inventoriableId): void
     {
         $inventoriableId = is_array($inventoriableId) ? Arr::flatten($inventoriableId) : func_get_args();
 
@@ -226,9 +243,9 @@ trait HasInventory
      * @param  \Illuminate\Database\Eloquent\Builder  $builder
      * @param  int  $quantity
      * @param  array  $inventoriableId
-     * @return \Illuminate\Database\Query\Builder
+     * @return void
      */
-    public function scopeInventoryIsNot(Builder $builder, $quantity = 0, ...$inventoriableId)
+    public function scopeInventoryIsNot(Builder $builder, int $quantity = 0, array ...$inventoriableId): void
     {
         $inventoriableId = is_array($inventoriableId) ? Arr::flatten($inventoriableId) : func_get_args();
 
@@ -249,7 +266,7 @@ trait HasInventory
      *
      * @return string
      */
-    protected function getInventoryTableName()
+    protected function getInventoryTableName(): string
     {
         $modelClass = $this->getInventoryModelClassName();
 
@@ -257,31 +274,25 @@ trait HasInventory
     }
 
     /**
-     * Return the inventory model uses the trait.
-     *
      * @return string
      */
-    protected function getInventoryModelType()
+    protected function getInventoryModelType(): string
     {
         return array_search(static::class, Relation::morphMap()) ?: static::class;
     }
 
     /**
-     * Return the model key column name set on config file.
-     *
      * @return string
      */
-    protected function getModelKeyColumnName()
+    protected function getModelKeyColumnName(): string
     {
         return config('laravel-inventory.model_primary_field_attribute') ?? 'inventoriable_id';
     }
 
     /**
-     * Return the model class name set on config file, uses to verify model is extending to \Caryley\LaravelInventory\Inventory class.
-     *
-     * @return void
+     * @return string
      */
-    protected function getInventoryModelClassName()
+    protected function getInventoryModelClassName(): string
     {
         return config('laravel-inventory.inventory_model');
     }
