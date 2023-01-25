@@ -11,6 +11,10 @@ class Inventory extends Model
 
     protected $table = 'inventories';
 
+    protected $casts = [
+        'quantity' => 'integer',
+    ];
+
     /**
      * Relationship.
      *
