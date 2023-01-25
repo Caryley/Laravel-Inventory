@@ -57,7 +57,7 @@ trait HasInventory
      */
     public function hasValidInventory(): bool
     {
-        return $this->inventories()->get()->isNotEmpty();
+        return  (bool) $this->currentInventory();
     }
 
     /**
@@ -82,7 +82,7 @@ trait HasInventory
      */
     public function notInInventory(): bool
     {
-        if (! isset($this->currentInventory()->quantity)) {
+        if (! $this->hasValidInventory()) {
             return true;
         }
 
@@ -98,9 +98,7 @@ trait HasInventory
      */
     public function setInventory(int $quantity, ?string $description = null): Inventory
     {
-        if (! $this->isValidInventory($quantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($quantity, $description);
 
         return $this->createInventory($quantity, $description);
     }
@@ -124,9 +122,7 @@ trait HasInventory
      */
     public function addInventory(int $addQuantity = 1, ?string $description = null): Inventory
     {
-        if (! $this->isValidInventory($addQuantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($addQuantity, $description);
 
         if ($this->notInInventory()) {
             return $this->createInventory($addQuantity, $description);
@@ -158,9 +154,7 @@ trait HasInventory
     {
         $subtractQuantity = abs($subtractQuantity);
 
-        if (! $this->isValidInventory($subtractQuantity, $description)) {
-            throw InvalidInventory::value($quantity);
-        }
+        $this->isValidInventory($subtractQuantity, $description);
 
         if ($this->notInInventory()) {
             throw InvalidInventory::subtract($subtractQuantity);

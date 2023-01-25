@@ -1,6 +1,7 @@
 <?php
 
 use Caryley\LaravelInventory\Events\InventoryUpdate;
+use Caryley\LaravelInventory\Exeptions\InvalidInventory;
 use Caryley\LaravelInventory\Inventory;
 use Caryley\LaravelInventory\Tests\InventoryModel;
 use Illuminate\Support\Facades\Event;
@@ -18,6 +19,10 @@ it('can set inventory', function () {
 
     expect($this->inventoryModel->currentInventory()->quantity)->toBe(10);
 });
+
+it('can not set negative inventory', function () {
+    $this->inventoryModel->setInventory(-1);
+})->throws(InvalidInventory::class, '-1 is an invalid quantity for an inventory.');
 
 it('can set inventory on a model without any inventory', function () {
     expect($this->secondInventoryModel->notInInventory())->toBeTrue();
@@ -58,7 +63,7 @@ it('prevent inventory from being set to a negative number', function () {
     $this->inventoryModel->setInventory(-1);
 
     expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
-})->expectExceptionMessage('-1 is an invalid quantity for an inventory.');
+})->throws(InvalidInventory::class, '-1 is an invalid quantity for an inventory.');
 
 it('inventory can be positive number', function () {
     $this->inventoryModel->setInventory(1);
@@ -144,7 +149,16 @@ test('inventory subtraction can not be negative', function () {
 
     $this->inventoryModel->refresh();
     expect($this->inventoryModel->currentInventory()->quantity)->toBe(1);
-})->expectExceptionMessage('The inventory quantity is less than 0, unable to set quantity negative by the amount of: 2.');
+})->throws(InvalidInventory::class, 'The inventory quantity is less than 0, unable to set quantity negative by the amount of: 2.');
+
+test('inventory subtraction can not be bellow 0', function () {
+    $this->inventoryModel->clearInventory();
+
+    $this->inventoryModel->subtractInventory(-2);
+    $this->inventoryModel->refresh();
+
+    expect($this->inventoryModel->currentInventory())->toBeNull();
+})->throws(InvalidInventory::class, 'The inventory quantity is 0 and unable to set quantity negative by the amount of: 2.');
 
 it('return current inventory', function () {
     expect($this->inventoryModel->inventories)
@@ -198,6 +212,7 @@ test('scope to find where inventory is the opposite then parameters passed to th
     expect($this->inventoryModel->currentInventory()->quantity)->toBe(0);
 
     expect($this->inventoryModel->id)
+        ->toBe(InventoryModel::InventoryIsNot(10, [1])->get()->first()->id)
         ->toBe(InventoryModel::InventoryIs(0)->get()->first()->id)
         ->toBe(InventoryModel::InventoryIsNot(1)->get()->first()->id);
 });

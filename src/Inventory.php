@@ -16,8 +16,6 @@ class Inventory extends Model
     ];
 
     /**
-     * Relationship.
-     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function model(): MorphTo
